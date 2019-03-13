@@ -1,0 +1,21 @@
+Package: lefutils
+Type: Package
+Title: Robust R functions for common data wrangling tasks
+Version: 0.1.0
+Authors@R: c(person("Daniel", "Lefever", role = c("aut", "cre", "ths"),
+    email = "lefeverde@gmail.com"))
+Description: This package contains my personal R functions which are made to help common data wrangling tasks. These are made with particular emphasis:
+    1. Functions which do a single job
+    2. Making functions robust
+    3. Adding explicit error messages
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Suggests:
+    testthat
+RoxygenNote: 6.1.1
+Imports:
+    magrittr
+Depends:
+    dplyr,
+    rstudioapi
