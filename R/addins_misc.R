@@ -1,8 +1,9 @@
 insertAssAddin <- function() {
   # get console editor id
-  context <- rstudioapi::getConsoleEditorContext()
-  id <- context$id
-  rstudioapi::insertText("<- ", id = id)
+  # context <- rstudioapi::getConsoleEditorContext()
+  # id <- context$id
+  # rstudioapi::insertText("<- ", id = id)
+  rstudioapi::insertText("<- ")
 }
 
 # 'foo bar'
