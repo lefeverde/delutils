@@ -7,7 +7,7 @@
 #' @param rel_size
 #'
 #' @return
-#' @export
+#' @keywords internal
 #'
 #' @examples
 theme_large_font <- function(rel_size=1.5){

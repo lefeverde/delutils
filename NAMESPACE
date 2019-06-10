@@ -3,5 +3,4 @@
 export("%>%")
 export(clean_by_levels)
 export(rbind_named_df_list)
-export(theme_large_font)
 importFrom(magrittr,"%>%")

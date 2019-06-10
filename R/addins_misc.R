@@ -1,3 +1,4 @@
+#TODO Latest RStudio makes this addin obsolete
 insertAssAddin <- function() {
   # get console editor id
   # context <- rstudioapi::getConsoleEditorContext()

@@ -15,3 +15,4 @@ fonts used in ggplot2. It also makes some other
 adjustments like increasing margin size, ticks,
 etc.
 }
+\keyword{internal}

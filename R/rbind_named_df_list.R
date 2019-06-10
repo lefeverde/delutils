@@ -33,21 +33,30 @@ rbind_named_df_list <- function(df_list, sum_col_name='col_from_list'){
   if(is.null(nms)){
     stop('df_list needs to be a named list')
   }
-  item_class_checker <- sapply(df_list, simplify = TRUE, function(x){
-    class(x) %in% c('data.frame', 'NULL')
-  }) %>%
+  item_class_checker <-
+    vapply(df_list, function(x){
+      any(class(x) %in% c('data.frame', 'NULL'))
+    }, logical(1)) %>%
     all(.)
   if(! item_class_checker){
-    stop('df_list contains items which are not data.frame')
+    stop('df_list contains items which are not data.frame or tibble')
   }
+
+
 
   out_df <- list()
   empty_dfs <- NULL
   for(x in nms){
-    temp_pth <- data.frame(df_list[[x]])
-    # Checks if cur df is null or empty
-    if(nrow(temp_pth) > 0 | is.null(temp_pth)){
-      temp_pth <- cbind(x, temp_pth)
+    temp_pth <- df_list[[x]]
+    valid_conditions <- c(
+      nrow(temp_pth) >= 1, # more than 1 rows
+      !is.null(temp_pth) # df is not NULL
+    ) %>% all
+    # Check valid conditions
+    if(valid_conditions){
+      temp_pth <- cbind(x,
+                        temp_pth,
+                        stringsAsFactors = FALSE)
       row.names(temp_pth) <- NULL
       names(temp_pth)[1] <- sum_col_name
       out_df[[x]] <- temp_pth
@@ -57,14 +66,30 @@ rbind_named_df_list <- function(df_list, sum_col_name='col_from_list'){
     }
   }
   if(!is.null(empty_dfs)){
-    warning_str <- paste('Some items contained empty or otherwise disagreeable data.frames and were not included in the bound data.frame. These include:\n',
-                         paste0(head(empty_dfs), sep='\n'))
-    warning(warning_str)
+    warning_str <-
+      paste0(head(empty_dfs), collapse ='\n') %>%
+      paste0('Some items contained empty or otherwise disagreeable data.frames and were not included in the bound data.frame.\nThese include:\n', . )
+    warning(warning_str, sep='')
   }
+
+  n_cols <- lapply(out_df, function(x){
+    colnames(x) %>%
+      length
+  }) %>% do.call(c, .)
+
+  if(length(unique(n_cols)) > 1){
+    suspect_dfs <-  names(out_df)[which(n_cols != mode(n_cols))]
+    e_message <-
+      paste0(suspect_dfs, collapse='\n') %>%
+
+      paste0('data.frames have different number of columns. check:\n', . )
+    stop(e_message, sep='')
+  }
+
   # TODO wrap this trycatch when data.frames have
   # different columns, s.t., an error w/ offending
   # items is spit out
-  out_df <- do.call(rbind, out_df)
+  out_df <- do.call(rbind, c(out_df, stringsAsFactors=FALSE))
   row.names(out_df) <- NULL
   return(out_df)
 }
