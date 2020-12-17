@@ -2,5 +2,7 @@
 
 export("%>%")
 export(clean_by_levels)
+export(de_rbind_df)
+export(find_na_rows)
 export(rbind_named_df_list)
 importFrom(magrittr,"%>%")

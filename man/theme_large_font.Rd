@@ -9,6 +9,9 @@ theme_large_font(rel_size = 1.5)
 \arguments{
 \item{rel_size}{}
 }
+\value{
+
+}
 \description{
 Functions which increases the relative size of
 fonts used in ggplot2. It also makes some other

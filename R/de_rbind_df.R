@@ -1,3 +1,14 @@
+#' de_rbind_df
+#'
+#' @param df data.frame
+#' @param col_to_split columnt to split data.frame by
+#'
+#' @return
+#' @export
+#'
+#' @keywords internal
+#'
+#' @examples
 de_rbind_df <- function(df, col_to_split=1){
 
   e_message <- 'col_to_split needs to be one of a "character", "numeric", or "integer" which matches a column in the data.frame.'
