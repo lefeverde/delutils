@@ -1,4 +1,4 @@
-Package: lefutils
+Package: delutils
 Type: Package
 Title: Robust R functions for common data wrangling tasks
 Version: 0.3.0
