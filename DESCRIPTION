@@ -13,10 +13,15 @@ Encoding: UTF-8
 LazyData: true
 Suggests:
     testthat
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.1
 Imports:
+    DESeq2,
+    Biobase,
     magrittr,
-    tibble
+    SummarizedExperiment,
+    limma,
+    matrixStats,
+    ggplot2
 Depends:
-    dplyr,
-    rstudioapi
+    tibble,
+    dplyr

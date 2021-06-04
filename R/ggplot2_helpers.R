@@ -6,6 +6,8 @@
 #' etc.
 #' @param rel_size
 #'
+#' @import ggplot2
+#'
 #' @return
 #' @keywords internal
 #'

@@ -7,7 +7,7 @@
 #' @export
 #'
 #' @examples
-#' library(lefutils)
+#' library(delutils)
 #' dat <- data.frame(A=rep(1,4), B=seq(1,4), C=c('f1', 'f2', 'f1', 'f1'))
 #' cleaned_dat <- clean_by_levels(dat)
 clean_by_levels <- function(dat, n_levels=1){
@@ -44,6 +44,9 @@ clean_by_levels <- function(dat, n_levels=1){
 #' @export
 #'
 #' @examples
+#' library(delutils)
+#' dat <- data.frame(A=c(NA,2:4), B=c(1:3, NA), C=1:4)
+#' find_na_rows(dat)
 #'
 find_na_rows <- function(df){
   if(!("data.frame" %in% class(df))){

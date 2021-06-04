@@ -1,5 +1,5 @@
 context("misc_utils")
-library(lefutils)
+library(delutils)
 
 test_that('clean_by_levels correctly checks input for correct type', {
   expect_error(clean_by_levels(dat=matrix()), 'dat needs to be a data.frame not a matrix')

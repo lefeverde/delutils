@@ -1,5 +1,5 @@
 context('uniquefy scripts')
-library(basicOmics)
+library(delutils)
 
 create_example_dataframe <- function(){
   set.seed(42)

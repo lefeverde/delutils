@@ -1,4 +1,4 @@
 library(testthat)
-library(lefutils)
+library(delutils)
 
-test_check("lefutils")
+test_check("delutils")
