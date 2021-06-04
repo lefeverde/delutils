@@ -18,7 +18,7 @@ a data.frame without un-informative columns
 Removes un-informative cols from a data.frame
 }
 \examples{
-library(lefutils)
+library(delutils)
 dat <- data.frame(A=rep(1,4), B=seq(1,4), C=c('f1', 'f2', 'f1', 'f1'))
 cleaned_dat <- clean_by_levels(dat)
 }

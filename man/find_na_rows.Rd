@@ -16,5 +16,8 @@ indexes of rows with NA values
 Finds rows in a data.frame which contain NA values
 }
 \examples{
+library(delutils)
+dat <- data.frame(A=c(NA,2:4), B=c(1:3, NA), C=1:4)
+find_na_rows(dat)
 
 }

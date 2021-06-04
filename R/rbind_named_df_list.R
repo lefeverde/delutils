@@ -13,7 +13,7 @@
 #'
 #' @examples
 #' library(dplyr)
-#' library(lefutils)
+#' library(delutils)
 #' l <- list(data.frame(A=seq(1,5)), data.frame(A=seq(6, 7))) %>%
 #'  setNames(., c('Cond1', 'Cond2'))
 #'  rbind_named_df_list(l)
