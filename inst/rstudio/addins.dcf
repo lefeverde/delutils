@@ -1,4 +1,0 @@
-Name: Insert assignment <- addin
-Description: Inserts `<-` at the cursor position.
-Binding: insertAssAddin
-Interactive: false

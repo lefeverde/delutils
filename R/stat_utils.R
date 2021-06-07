@@ -1,22 +1,4 @@
-#' Extract genes sets from a pathway results data.frame
-#'
-#' pathway results data.frame with a column
-#' of gene sets seperated by a delimiter
-#'
-#' @param path_df data.frame with gene sets
-#' @param delim delimeter seperating genes (default: '/')
-#'
-#' @return list with names as pathway ids
-#' @export
-#'
-#' @examples
-get_geneSets <- function(path_df, delim="/"){
-  nms <- path_df$ID
-  gene_sets <-  strsplit(path_df$geneID, delim, fixed=TRUE)
-  names(gene_sets) <- nms
-  return(gene_sets)
-}
-
+#### Statisitc related wranglers ####
 
 #' Creates a much nicer formatted design matrix than the default model.matrix
 #'
@@ -95,43 +77,155 @@ better_model_matrix <- function(..., data, show_warnings=TRUE){
 }
 
 
-#' Returns summaries of gene expression
+
+
+
+
+
+#' Selects the top n genes by variance
+#'
+#' @param expr_mat expression mat
+#' @param n_genes number of genes to extract
+#'
+#' @return gene matrix
+#' @export
+#'
+#' @importFrom matrixStats rowVars
+#'
+#' @examples
+select_genes_by_variance <- function(expr_mat, n_genes=5000){
+  rv_idx <- rowVars(expr_mat) %>%
+    order(., decreasing = TRUE)
+  rv_idx <- rv_idx[1:n_genes]
+  filt_expr_mat <- expr_mat[rv_idx,]
+  return(filt_expr_mat)
+}
+
+
+#' Gene expression filter by quantile
+#'
+#' This function first removes rows in which
+#' the max value equals the min value and
+#' then filters the resulting genes by row
+#' medians. Rows with a median greater than
+#' the resulting value of the quantile are
+#' retained.
+#'
+#' @param expr_mat an expression matrix of class matrix
+#' @param quant_val quantile threshold
+#'
+#' @return filtered by quantile expresion matrix
+#' @export
+#'
+#' @import stats
+#' @import utils
+#' @importFrom Biobase rowMax rowMedians
+#'
+#' @examples
+gene_quantile_filter <- function(expr_mat, quant_val=.05){
+  rm <- rowMax(expr_mat)
+  qthresh <- quantile(rm, quant_val)
+  filt_mat <- expr_mat[rm > qthresh,]
+  filt_mat <- filt_mat[rowMedians(filt_mat) > qthresh,]
+  return(filt_mat)
+}
+
+
+
+
+
+
+#' get overlap ratio of 2 gene sets
+#'
+#' The ratio is calculated using the number of
+#' genes which overlap
+#'
+#' @param x gene vector
+#' @param y gene vector
+#'
+#' @return ratio
+#' @noRd
 #'
 #'
-#' This just summarizes the number of significant up & down
-#' regulated genes per group
+overlap_ratio <- function(x, y) {
+  x <- unlist(x) %>%
+    unique(.)
+  y <- unlist(y) %>%
+    unique(.)
+  overlap <- length(intersect(x, y))
+  divisor <- c(length(x), length(y)) %>%
+    min(.)
+  return(overlap/divisor)
+}
+
+
+#' Creates matrix of overlap ratios
 #'
-#' @param long_res_table res df in long format
-#' @param log2_thresh threshold to genes by lfc
-#' @param logFC_col str of logFC_col
-#' @param padj_col str of padj_col
+#' This function creates a matrix of the ratio
+#' of overlapping genesets. It takes a list of genes
+#' or alternatively 2 gene lists
 #'
-#' @return table summary
+#' @param l1 gene list
+#' @param l2 optional 2nd gene list
+#'
+#' @return top diagonal matrix of overlap ratios
 #' @export
 #'
 #' @examples
-expression_summaries <- function(long_res_table, log2_thresh=0, logFC_col = NULL, padj_col=NULL){
-  #TODO fix hardcoding of coefficient
-  if(is.null(logFC_col)){
-    potential_cols <- c('log2FoldChange','logFC')
-    logFC_col <- na.omit(match(potential_cols, colnames(long_res_table)) )
-    colnames(long_res_table)[logFC_col] <- 'log2FoldChange'
+#' \dontrun{
+#' # returns a self (l1 vs l1) overlap matrix
+#' genes <- paste0('gene', seq(1, 100))
+#' set.seed(42)
+#' n_genes_to_sample <- rnbinom(10, 10, .5)
+#' l1 <- lapply(seq_along(n_genes_to_sample), function(i){
+#'  n <- n_genes_to_sample[i]
+#'  sample(genes, n)
+#' }) %>%
+#'  setNames(., paste0('L1_', LETTERS[1:10]))
+#' omat <- get_overlap_matix(l1)
+#' }
+#'
+get_overlap_matix <- function(l1, l2=NULL){
+  if(is.null(l2)){
+    l2 <- l1
   }
-  if(is.null(padj_col)){
-    potential_cols <- c('padj','adj.P.Val')
-    logFC_col <- na.omit(match(potential_cols, colnames(long_res_table)) )
-    colnames(long_res_table)[logFC_col] <- 'padj'
+
+  l1_nms <- names(l1)
+  l2_nms <- names(l2)
+
+
+  w <- matrix(NA, nrow=length(l1_nms), ncol=length(l2_nms))
+  rownames(w) <- l1_nms
+  colnames(w) <- l2_nms
+
+  for (i in 1:nrow(w)) {
+    for (j in 1:ncol(w)) {
+      w[i,j] = overlap_ratio(l1[[i]], l2[[j]])
+    }
   }
-  group_sums <-
-    long_res_table %>%
-    dplyr::filter(padj < .05) %>%
-    dplyr::filter(.,abs(log2FoldChange) >= log2_thresh) %>%
-    group_by(., coefficient) %>%
-    summarise(.,
-              up=sum(log2FoldChange > 0),
-              down=sum(log2FoldChange < 0))
-  return(group_sums)
+  return(w)
 }
+
+
+#' Extract genes sets from a pathway results data.frame
+#'
+#' pathway results data.frame with a column
+#' of gene sets seperated by a delimiter
+#'
+#' @param path_df data.frame with gene sets
+#' @param delim delimeter seperating genes (default: '/')
+#'
+#' @return list with names as pathway ids
+#' @export
+#'
+#' @examples
+get_geneSets <- function(path_df, delim="/"){
+  nms <- path_df$ID
+  gene_sets <-  strsplit(path_df$geneID, delim, fixed=TRUE)
+  names(gene_sets) <- nms
+  return(gene_sets)
+}
+
 
 #' get results from limma fit object
 #'
@@ -177,9 +271,9 @@ get_limma_results <- function(limma_fit, coefs=NULL, print_summary=TRUE){
       cur_res <-
         topTreat(limma_fit, coef = x, number = Inf, confint=TRUE)
     }
-      cur_res <- cur_res %>%
-        tibble::rownames_to_column(., 'gene_id') %>%
-        cbind(coefficient=x, .)
+    cur_res <- cur_res %>%
+      tibble::rownames_to_column(., 'gene_id') %>%
+      cbind(coefficient=x, .)
   }) %>% do.call(rbind, .)
 
   if(print_summary){
@@ -256,53 +350,154 @@ get_deseq2_results <- function(dds_object, gene_annots=NULL, use_shrinkage=FALSE
 
 
 
-#' Selects the top n genes by variance
+#' Returns summaries of gene expression
 #'
-#' @param expr_mat expression mat
-#' @param n_genes number of genes to extract
 #'
-#' @return gene matrix
+#' This just summarizes the number of significant up & down
+#' regulated genes per group
+#'
+#' @param long_res_table res df in long format
+#' @param log2_thresh threshold to genes by lfc
+#' @param logFC_col str of logFC_col
+#' @param padj_col str of padj_col
+#'
+#' @return table summary
 #' @export
 #'
-#' @importFrom matrixStats rowVars
-#'
 #' @examples
-select_genes_by_variance <- function(expr_mat, n_genes=5000){
-  rv_idx <- rowVars(expr_mat) %>%
-    order(., decreasing = TRUE)
-  rv_idx <- rv_idx[1:n_genes]
-  filt_expr_mat <- expr_mat[rv_idx,]
-  return(filt_expr_mat)
+expression_summaries <- function(long_res_table, log2_thresh=0, logFC_col = NULL, padj_col=NULL){
+  #TODO fix hardcoding of coefficient
+  if(is.null(logFC_col)){
+    potential_cols <- c('log2FoldChange','logFC')
+    logFC_col <- na.omit(match(potential_cols, colnames(long_res_table)) )
+    colnames(long_res_table)[logFC_col] <- 'log2FoldChange'
+  }
+  if(is.null(padj_col)){
+    potential_cols <- c('padj','adj.P.Val')
+    logFC_col <- na.omit(match(potential_cols, colnames(long_res_table)) )
+    colnames(long_res_table)[logFC_col] <- 'padj'
+  }
+  group_sums <-
+    long_res_table %>%
+    dplyr::filter(padj < .05) %>%
+    dplyr::filter(.,abs(log2FoldChange) >= log2_thresh) %>%
+    group_by(., coefficient) %>%
+    summarise(.,
+              up=sum(log2FoldChange > 0),
+              down=sum(log2FoldChange < 0))
+  return(group_sums)
 }
 
 
-#' Gene expression filter by quantile
+
+#### Statistical functions ####
+
+
+
+#' Function performs lm over accross a number of genes
 #'
-#' This function first removes rows in which
-#' the max value equals the min value and
-#' then filters the resulting genes by row
-#' medians. Rows with a median greater than
-#' the resulting value of the quantile are
-#' retained.
+#' @param expr_mat matrix of expression values
+#' @param p_data matrix with sample data
+#' @param model_formula a string of the form: y ~ x + o
 #'
-#' @param expr_mat an expression matrix of class matrix
-#' @param quant_val quantile threshold
-#'
-#' @return filtered by quantile expresion matrix
+#' @return lm list
 #' @export
 #'
-#' @import stats
-#' @import utils
-#' @importFrom Biobase rowMax rowMedians
+#' @examples
+basic_linear_regression <- function(expr_mat, p_data, model_formula){
+  if(class(model_formula) != 'character'){
+    stop('model_formula needs to be a string of the form y ~ + x1 + x2...')
+  }
+  expr_mat <- data.frame(expr_mat[row.names(p_data),], check.names = F)
+  l <- lapply(expr_mat, function(x){
+    tmp <- summary(lm(as.formula(model_formula), data=p_data))
+  })
+  out_df <- lmlist_to_df(l)
+  # nms <- names(l)
+  # x_list <- lapply(l, function(x){
+  #   x <- x$coefficients[2,]
+  # })
+  # out_df <- do.call(rbind, x_list)
+  # row.names(out_df) <- nms
+  return(out_df)
+}
+
+#' Performs logistic regression with numerous Y vals
+#'
+#' @param expr_mat matrix of expression values
+#' @param p_data matrix with sample data
+#' @param model_formula a string of the form: y ~ x + o
+#'
+#' @return lm list
+#' @export
 #'
 #' @examples
-gene_quantile_filter <- function(expr_mat, quant_val=.05){
-  rm <- rowMax(expr_mat)
-  qthresh <- quantile(rm, quant_val)
-  filt_mat <- expr_mat[rm > qthresh,]
-  filt_mat <- filt_mat[rowMedians(filt_mat) > qthresh,]
-  return(filt_mat)
+basic_logistic_regression <- function(expr_mat, p_data, model_formula){
+  ### Args:
+  ### expr_mat: matrix of expression values
+  ### p_data: matrix with sample data
+  ### model_formula: needs to be y ~ x + o
+  ### y is outcome var, x is gene, o is other covariates
+
+  if(class(model_formula) != 'character'){
+    stop('model_formula needs to be a string of the form y ~ + x1 + x2...')
+  }
+  expr_mat <- data.frame(expr_mat, check.names = F)
+  l <- lapply(expr_mat, function(x){
+    tmp <- summary(glm(as.formula(model_formula), family = 'binomial', data=p_data))
+    tmp <- coefficients(tmp)
+    if(nrow(tmp) == 1){
+      temp_row <- matrix(rep(NA, 4), nrow = 1)
+      colnames(temp_row) <- colnames(tmp)
+      x <- temp_row
+    } else {
+      x <- tmp[2,]
+    }
+  })
+  res_logreg <- data.frame(do.call(rbind, l), check.names = F)
+  colnames(res_logreg) <- c("Estimate","Std_Error","z_or_t_value", "p_value" )
+  row.names(res_logreg) <- names(l)
+  return(res_logreg)
 }
+
+
+
+
+#' Compare the sample contributions according to their annotation level across the components.
+#'
+#' Wilcoxon or Kruskal-Wallis tests are performed depending on the number of levels in the considered annotation.
+#' @title Comparison of distributions of sample groups
+#' @param A A matrix of dimensions 'samples x components' containing the sample contributions
+#' @param annot A matrix of dimensions 'samples x variables' containing the sample annotations
+#' @param colAnnot The name of the column of \code{annot} to be considered
+#' @return A vector of p-values
+#' @author Anne Biton
+#' @seealso \code{wilcox.test}, \code{kruskal.test}
+#' @keywords external
+#' @import foreach
+#' @import doParallel
+wilcoxOrKruskalOnA <- function (A, colAnnot, annot) {
+
+  comp <- NULL
+  A <- A[rownames(annot),]
+
+  res_tests <- foreach::foreach(comp=as.list(A),.combine = c, .errorhandling = "stop") %dopar% {
+    annotComp <- data.frame(comp=comp)
+    annotComp[[colAnnot]] <- as.factor(annot[[colAnnot]])
+
+    if (length(levels(annotComp[[colAnnot]])) == 2)
+      res.test <- wilcox.test(comp~eval(as.name(colAnnot)), data = annotComp, na.action = "na.omit")
+    else
+      res.test <- kruskal.test(comp~eval(as.name(colAnnot)), data = annotComp, na.action = "na.omit")
+    return(res.test$p.value)
+  }
+  return(unlist(res_tests))
+
+}
+
+
+
+
 
 #### TODO Functions ####
 
@@ -319,7 +514,7 @@ gene_quantile_filter <- function(expr_mat, quant_val=.05){
 #' @importFrom limma strsplit2
 #'
 #' @examples
-split_fix_names <- function(df, delim=':', split_item=1, remove_space=TRUE){
+.split_fix_names <- function(df, delim=':', split_item=1, remove_space=TRUE){
   nms <- strsplit2(names(df), delim)[,split_item]
   if(remove_space){
     nms <- gsub(' ', '_',nms)
@@ -342,7 +537,7 @@ split_fix_names <- function(df, delim=':', split_item=1, remove_space=TRUE){
 #' @import DESeq2
 #'
 #' @examples
-create_test_dds <- function(n_genes=500, m_samples=60, seed=42, groups=NULL){
+.create_test_dds <- function(n_genes=500, m_samples=60, seed=42, groups=NULL){
   set.seed(seed)
   dds <- makeExampleDESeqDataSet(n=n_genes, m = m_samples)
   mcols(dds) <- NULL
@@ -371,7 +566,7 @@ create_test_dds <- function(n_genes=500, m_samples=60, seed=42, groups=NULL){
 #' @keywords internal
 #'
 #' @examples
-lmlist_to_df <- function(lmlist, coef=2){
+.lmlist_to_df <- function(lmlist, coef=2){
 
   rnms <- try(limma::strsplit2(names(lmlist), ' ')[,2], silent = T) # gets rid of extranous name
   if(class(rnms) == 'try-error'){
@@ -401,7 +596,7 @@ lmlist_to_df <- function(lmlist, coef=2){
 #' @keywords internal
 #'
 #' @examples
-get_lfc <- function(gene_list, res_df){
+.get_lfc <- function(gene_list, res_df){
   ol <- lapply(gene_list, function(x){
     lfc <- res_df$logFC[match(x, res_df$external_gene_name)] %>%
       setNames(., x)
@@ -419,12 +614,18 @@ get_lfc <- function(gene_list, res_df){
 #' @keywords internal
 #'
 #' @examples
-split_by_reg <- function(lfc_list){
+.split_by_reg <- function(lfc_list){
   split_degs <- list(
     sort(lfc_list[lfc_list > 0, drop=F], decreasing = TRUE),
     sort(lfc_list[lfc_list < 0, drop=F]))
   names(split_degs) <- c('upreg', 'downreg')
   return(split_degs)
 }
+
+
+
+
+
+
 
 

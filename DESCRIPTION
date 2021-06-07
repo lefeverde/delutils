@@ -21,7 +21,9 @@ Imports:
     SummarizedExperiment,
     limma,
     matrixStats,
-    ggplot2
+    ggplot2,
+    foreach,
+    doParallel
 Depends:
     tibble,
     dplyr

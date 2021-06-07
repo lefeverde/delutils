@@ -1,3 +1,6 @@
+##### General data wrangling #####
+
+
 #' Removes un-informative cols from a data.frame
 #'
 #' @param dat a data.frame
