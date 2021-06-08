@@ -23,7 +23,11 @@ Imports:
     matrixStats,
     ggplot2,
     foreach,
-    doParallel
+    doParallel,
+    DOSE,
+    ReactomePA,
+    clusterProfiler,
+    edgeR
 Depends:
     tibble,
     dplyr
