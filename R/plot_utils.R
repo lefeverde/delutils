@@ -61,7 +61,7 @@ pca_plotter <- function(transformed_data, sample_map,leg_row_num=3, gene_num=Inf
   axlab.3 <- paste("PC3 (", signif(var_exp[3]*100, digits=4), "%)", sep="")
 
   if(return_data){
-    return(plot_data)
+    return(list(plot_data, axlab.1, axlab.2, axlab.3))
   }
   # And here comes the plot!
   plt1 <- ggplot(data=plot_data,
