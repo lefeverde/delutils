@@ -1,7 +1,7 @@
 context("stat_utils.R tests")
 library(delutils)
 
-
+#### Functions #####
 limma_example_data <- function(){
   set.seed(2016)
   sigma2 <- 0.05 / rchisq(100, df=10) * 10
@@ -33,7 +33,7 @@ test_that('get_limma_results returns correct tibble of results',{
   o_res <- get_limma_results(fit)
   gene_annots_cols <-
     c("coefficient",
-      "gene_id",
+      "ensembl_gene_id",
       "external_gene_name",
       "gene_biotype",
       "description" )
@@ -47,13 +47,7 @@ test_that('get_limma_results returns correct tibble of results',{
 })
 
 
-
-test_that('overlap_ratio calculates overlap correctly',{
-  x <- LETTERS[1:5]
-  y <- LETTERS[2:10]
-  expect_equal(overlap_ratio(x,y), .8)
-})
-
+#### Statisitc related wranglers ####
 test_that('get_overlap_matix produces correct overlap matrix',{
   set.seed(42)
   n_genes_to_sample <- rnbinom(3, 5, .2)
@@ -68,4 +62,23 @@ test_that('get_overlap_matix produces correct overlap matrix',{
   omat <- get_overlap_matix(l1)
   expect_equivalent(e_mat, omat, tolerance=1e-6)
 })
+
+#### Distance functions ####
+test_that('overlap_ratio calculates overlap correctly',{
+  x <- LETTERS[1:5]
+  x2 <- c(x, x)
+  y <- LETTERS[2:10]
+  outs <- c(overlap_ratio(x,y),
+            jaccard(x, y),
+            dice(x, y))
+  e_outs <- c(.8, .4, 0.5714286)
+  expect_equal(outs, e_outs, tolerance = .01)
+  ## Testing the check
+  expect_error(overlap_ratio(x2, y))
+  expect_error(jaccard(x2, y))
+  expect_error(dice(x2, y))
+
+})
+
+
 

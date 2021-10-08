@@ -1,3 +1,68 @@
+#### Table plots ####
+
+#' Makes a flextable that can be (sometimes, atleast) used as-is
+#'
+#' This function creates a flextable using customizations that I generally like.
+#' It returns a flextable object which can be further customized.
+#'
+#' @param dat_tbl data.frame or tibble to be turned into a flextable
+#'
+#' @return flextable object
+#' @export
+#'
+#' @import flextable
+#' @importFrom officer fp_border
+#'
+#' @examples
+make_flextable <- function(dat_tbl){
+  std_border <-
+    fp_border(color="black", width = 1)
+
+  ft_tbl <- dat_tbl %>%
+    flextable(.) %>%
+    align(., align = 'center', part='all') %>%
+    font(fontname='Calibri', part='all') %>%
+    fontsize(size=12, part = 'all') %>%
+    color(., i=1, color='black', part = 'header') %>%
+    bold(., part='all') %>%
+    border_inner_h(., border = std_border) %>%
+    border_inner_v(., border = std_border) %>%
+    border_outer(., border = std_border) %>%
+    theme_booktabs %>%
+    autofit(., -.1, -.1)
+  return(ft_tbl)
+}
+
+
+
+#### Venn diagrams ####
+#' Venn maker
+#'
+#' @param set_list named vector list
+#' @param tit plot title
+#'
+#' @return
+#' @keywords internal
+#'
+#' @import eulerr
+#'
+#' @examples
+venn_maker <- function(set_list, tit=''){
+  if(is.null(names(set_list))){
+    stop(call. = TRUE, 'set_list needs to be named')
+  }
+  euler(set_list) %>%
+    plot(.,
+         fills=list(fill=c('red', 'blue'),
+                    alpha=.5),
+         col=c('red', 'blue'),
+         quantities = list(cex = 1.125),
+         fontsize = 14,
+         text_args = list(font = 20),
+         legend=list(cex=1.5, alpha=1))
+}
+
+
 #### PCA related ####
 
 #' Plots PC1 by PC2 using ggplot

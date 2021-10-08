@@ -135,28 +135,7 @@ gene_quantile_filter <- function(expr_mat, quant_val=.05){
 
 
 
-#' get overlap ratio of 2 gene sets
-#'
-#' The ratio is calculated using the number of
-#' genes which overlap
-#'
-#' @param x gene vector
-#' @param y gene vector
-#'
-#' @return ratio
-#' @noRd
-#'
-#'
-overlap_ratio <- function(x, y) {
-  x <- unlist(x) %>%
-    unique(.)
-  y <- unlist(y) %>%
-    unique(.)
-  overlap <- length(intersect(x, y))
-  divisor <- c(length(x), length(y)) %>%
-    min(.)
-  return(overlap/divisor)
-}
+
 
 
 #' Creates matrix of overlap ratios
@@ -272,7 +251,7 @@ get_limma_results <- function(limma_fit, coefs=NULL, print_summary=TRUE){
         topTreat(limma_fit, coef = x, number = Inf, confint=TRUE)
     }
     cur_res <- cur_res %>%
-      tibble::rownames_to_column(., 'gene_id') %>%
+      tibble::rownames_to_column(., 'ensembl_gene_id') %>%
       cbind(coefficient=x, .)
   }) %>% do.call(rbind, .)
 
@@ -494,8 +473,70 @@ wilcoxOrKruskalOnA <- function (A, colAnnot, annot) {
   return(unlist(res_tests))
 
 }
+#### Distance functions ####
 
+#' Calculates the overlap coefficient of 2  sets
+#'
+#'
+#' @param x set vector
+#' @param y set vector
+#'
+#' @return overlap ratio/coefficient
+#' @export
+#'
+#'
+overlap_ratio <- function(x, y, check_sets=TRUE) {
+  if(check_sets){
+    stopifnot("x contains duplicated values"=!any(unclass(table(x)) > 1))
+    stopifnot("y contains duplicated values"=!any(unclass(table(y)) > 1))
+  }
+  numer <- length(intersect(x, y))
+  denom <- min(length(x), length(y))
 
+  return(numer/denom)
+}
+
+#' Calculates the jaccard distance between 2 named sets
+#'
+#' @param x set vector
+#' @param y set vector
+#'
+#' @return jaccard distance
+#' @export
+#'
+#' @examples
+jaccard <- function(x, y, check_sets=TRUE){
+  if(check_sets){
+    stopifnot("x contains duplicated values"=!any(unclass(table(x)) > 1))
+    stopifnot("y contains duplicated values"=!any(unclass(table(y)) > 1))
+  }
+
+  numer <- length(intersect(x, y))
+  denom <- length(union(x, y))
+
+  return(numer/denom)
+}
+
+#' Calculates the Dice coefficient
+#'
+#' @param x
+#' @param y
+#' @param check_sets
+#'
+#' @return
+#' @export
+#'
+#' @examples
+dice <- function(x, y, check_sets=TRUE){
+  if(check_sets){
+    stopifnot("x contains duplicated values"=!any(unclass(table(x)) > 1))
+    stopifnot("y contains duplicated values"=!any(unclass(table(y)) > 1))
+  }
+  numer <- 2*length(intersect(x, y))
+  denom <- length(x) + length(y)
+
+  return(numer/denom)
+}
 
 
 
