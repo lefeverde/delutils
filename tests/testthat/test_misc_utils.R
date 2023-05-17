@@ -11,6 +11,25 @@ create_example_dataframe <- function(){
   return(mat)
 }
 
+#### clean_colnames ####
+test_that("clean_colnames properly cleans column names", {
+  # Create a test data frame with different types of whitespace in column names
+  test_df <- data.frame("  First  Name " = c("John", "Jane", "Alice"),
+                        "Last\tName  " = c("Doe", "Smith", "Johnson"),
+                        "  Age " = c(25, 30, 35),
+                        check.names = FALSE)
+
+  # Clean column names using the clean_colnames function
+  cleaned_df <- clean_colnames(test_df)
+
+  # Expected column names after cleaning
+  expected_colnames <- c("first_name", "last_name", "age")
+
+  # Compare the cleaned column names with the expected column names
+  expect_equal(colnames(cleaned_df), expected_colnames)
+})
+
+
 
 #### clean_by_levels ####
 

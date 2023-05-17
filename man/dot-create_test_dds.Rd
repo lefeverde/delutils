@@ -9,9 +9,6 @@
 \arguments{
 \item{groups}{}
 }
-\value{
-
-}
 \description{
 Title
 }

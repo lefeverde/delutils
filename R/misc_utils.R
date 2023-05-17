@@ -39,6 +39,37 @@ clean_by_levels <- function(dat, n_levels=1){
   return(cleaned_df)
 }
 
+
+#' Convert Column Names to Lowercase, Replace Whitespace, and Remove Leading/Trailing Whitespace
+#'
+#' This function converts the column names of a data frame to lowercase,
+#' replaces whitespace (including tabs) with underscores, and removes any leading or trailing whitespace.
+#'
+#' @param dat A data frame.
+#' @return A data frame with cleaned column names.
+#' @examples
+#' # Example data frame
+#' my_df <- data.frame("First Name\t" = c("John", "Jane", "Alice"),
+#'                     "Last Name  " = c("Doe", "Smith", "Johnson"),
+#'                     "Age " = c(25, 30, 35))
+#'
+#' # Clean column names: convert to lowercase, replace whitespace, and remove leading/trailing whitespace
+#' cleaned_df <- clean_colnames(my_df)
+#' colnames(cleaned_df)
+#' @importFrom stringr str_replace_all str_trim
+#' @export
+clean_colnames <- function(dat) {
+  if(!("data.frame" %in% class(dat))){
+    stop("df needs to be either a data.frame or tibble")
+  }
+  fixed_names <- colnames(dat) %>%
+    str_trim(side = "both") %>%
+    gsub("\\s+", "_", .) %>%
+    tolower()
+  colnames(dat) <-fixed_names
+  return(dat)
+}
+
 #' Finds rows in a data.frame which contain NA values
 #'
 #' @param df data.frame or tibble
