@@ -31,7 +31,9 @@ Imports:
     eulerr,
     stringr,
     flextable,
-    officer
+    officer,
+    grDevices,
+    crayon
 Depends:
     tibble,
     dplyr

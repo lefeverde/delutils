@@ -11,6 +11,9 @@ venn_maker(set_list, tit = "")
 
 \item{tit}{plot title}
 }
+\value{
+
+}
 \description{
 Venn maker
 }

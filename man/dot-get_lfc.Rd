@@ -11,6 +11,9 @@
 
 \item{res_df}{long res df table}
 }
+\value{
+
+}
 \description{
 This returns the lfc from a genelist as a
 named vector of genes by lfc

@@ -1,4 +1,4 @@
-#### Table plots ####
+#### Table plots and functions ####
 
 #' Makes a flextable that can be (sometimes, atleast) used as-is
 #'
@@ -16,7 +16,7 @@
 #' @examples
 make_flextable <- function(dat_tbl){
   std_border <-
-    fp_border(color="black", width = 1)
+    fp_border(color="gray", width = 1)
 
   ft_tbl <- dat_tbl %>%
     flextable(.) %>%
@@ -32,6 +32,84 @@ make_flextable <- function(dat_tbl){
     autofit(., -.1, -.1)
   return(ft_tbl)
 }
+
+
+#' Colors a vector of DNA/peptide sequences via html
+#'
+#' @param sequences vector of DNA or peptide sequences
+#'
+#' @importFrom crayon make_style
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' library(knitr)
+#'
+#' # Example 1: DNA sequences with A, C, T, G
+#' dna_sequences <- c("ACTG", "GCTA", "TACG")
+#' colored_dna_sequences <- sapply(dna_sequences, color_dna_sequence)
+#'
+#' # Creating a table with kable for DNA sequences
+#' dna_data <- data.frame(
+#'   DNA_Sequence = dna_sequences,
+#'   Colored_DNA_Sequence = colored_dna_sequences
+#' )
+#' kable(dna_data, escape = FALSE)  # escape = FALSE allows rendering of HTML
+#'
+#' # Example 2: Peptide sequences
+#' peptide_sequences <- c("MKTAY", "LLGTP", "IVAGL")
+#' colored_peptide_sequences <- sapply(peptide_sequences, color_dna_sequence)
+#'
+#' # Creating a table with kable for peptide sequences
+#' peptide_data <- data.frame(
+#'   Peptide_Sequence = peptide_sequences,
+#'   Colored_Peptide_Sequence = colored_peptide_sequences
+#' )
+#' kable(peptide_data, escape = FALSE)  # escape = FALSE allows rendering of HTML
+color_dna_sequence <- function(sequences){
+
+
+  # Define custom styles
+  whiter <- make_style(rgb(1, 1, 1))  # Pure white color
+  dark_grey_bg <- make_style(rgb(0.5, 0.5, 0.5), bg = TRUE)  # Dark grey background
+
+  # All the IUPAC ambiguity letters minus N
+  dark_grey_bg_letters <- c("M", "R", "W", "S", "Y", "K", "V", "H", "D", "B")
+
+  # Custom color scheme
+  # Define custom HTML styles instead of crayon
+  color_scheme <- c(
+    A = '<span style="color:black; background-color:rgb(255, 128, 128); padding:0;">A</span>',
+    C = '<span style="color:black; background-color:rgb(128, 255, 128); padding:0;">C</span>',
+    G = '<span style="color:black; background-color:rgb(128, 255, 255); padding:0;">G</span>',
+    T = '<span style="color:black; background-color:rgb(255, 204, 128); padding:0;">T</span>',
+    U = '<span style="color:black; background-color:rgb(255, 255, 128); padding:0;">U</span>',
+    M = '<span style="color:white; background-color:rgb(128, 128, 128); padding:0;">M</span>',
+    R = '<span style="color:white; background-color:rgb(128, 128, 128); padding:0;">R</span>',
+    W = '<span style="color:white; background-color:rgb(128, 128, 128); padding:0;">W</span>',
+    S = '<span style="color:white; background-color:rgb(128, 128, 128); padding:0;">S</span>',
+    Y = '<span style="color:white; background-color:rgb(128, 128, 128); padding:0;">Y</span>',
+    K = '<span style="color:white; background-color:rgb(128, 128, 128); padding:0;">K</span>',
+    V = '<span style="color:white; background-color:rgb(128, 128, 128); padding:0;">V</span>',
+    H = '<span style="color:white; background-color:rgb(128, 128, 128); padding:0;">H</span>',
+    D = '<span style="color:white; background-color:rgb(128, 128, 128); padding:0;">D</span>',
+    B = '<span style="color:white; background-color:rgb(128, 128, 128); padding:0;">B</span>',
+    N = '<span style="color:white; background-color:grey; padding:0;">N</span>'
+  )
+
+  # Function to color DNA sequences
+  color_dna <- function(dna_string) {
+    for (nuc in names(color_scheme)) {
+      dna_string <- gsub(nuc, color_scheme[[nuc]], dna_string, fixed = TRUE)
+    }
+    return(dna_string)
+  }
+  return(color_dna(sequences))
+
+}
+
+
 
 
 
@@ -61,6 +139,9 @@ venn_maker <- function(set_list, tit=''){
          text_args = list(font = 20),
          legend=list(cex=1.5, alpha=1))
 }
+
+
+
 
 
 #### PCA related ####

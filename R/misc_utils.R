@@ -62,10 +62,14 @@ clean_colnames <- function(dat) {
   if(!("data.frame" %in% class(dat))){
     stop("df needs to be either a data.frame or tibble")
   }
+  fixed_names <- colnames(dat)
+  
+
   fixed_names <- colnames(dat) %>%
     str_trim(side = "both") %>%
     gsub("\\s+", "_", .) %>%
     tolower()
+
   colnames(dat) <-fixed_names
   return(dat)
 }
