@@ -33,7 +33,8 @@ Imports:
     flextable,
     officer,
     grDevices,
-    crayon
+    crayon,
+    Biostrings
 Depends:
     tibble,
     dplyr

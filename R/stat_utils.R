@@ -473,6 +473,7 @@ wilcoxOrKruskalOnA <- function (A, colAnnot, annot) {
   return(unlist(res_tests))
 
 }
+
 #### Distance functions ####
 
 #' Calculates the overlap coefficient of 2  sets
@@ -538,6 +539,34 @@ dice <- function(x, y, check_sets=TRUE){
   return(numer/denom)
 }
 
+#' Order DNA sequences by Levenshtein edit distance
+#'
+#' This function takes a vector of DNA sequences, computes pairwise distances
+#' between them, and orders the sequences based on their similarity using
+#' hierarchical clustering.
+#'
+#' @param dna_strings A character vector containing DNA sequences (A, C, G, T).
+#'
+#' @return A character vector of DNA sequences ordered by similarity.
+#'
+#' @examples
+#' dna_strings <- c("ACTG", "ACCG", "ATGC", "AGTC")
+#' ordered_dna <- order_by_similarity(dna_strings)
+#' print(ordered_dna)
+#'
+#' @importFrom Biostrings DNAStringSet stringDist
+#' @export
+order_by_similarity <- function(dna_strings) {
+  dna_set <- DNAStringSet(dna_strings)
+  dist_matrix <- stringDist(dna_set)
+  hc <- hclust(as.dist(dist_matrix))
+  ordered_indices <- hc$order
+
+  # Return the DNA strings in the new order
+  ordered_dna_strings <- dna_strings[ordered_indices]
+
+  return(ordered_dna_strings)
+}
 
 
 #### TODO Functions ####

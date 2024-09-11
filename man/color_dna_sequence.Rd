@@ -16,27 +16,34 @@ color_dna_sequence(sequences)
 Colors a vector of DNA/peptide sequences via html
 }
 \examples{
-library(knitr)
+#' library(knitr)
+library(kableExtra)
 
-# Example 1: DNA sequences with A, C, T, G
+# Example 1: DNA sequences
 dna_sequences <- c("ACTG", "GCTA", "TACG")
-colored_dna_sequences <- sapply(dna_sequences, color_dna_sequence)
+colored_dna_sequences <- color_dna_sequence(dna_sequences)
 
 # Creating a table with kable for DNA sequences
 dna_data <- data.frame(
   DNA_Sequence = dna_sequences,
   Colored_DNA_Sequence = colored_dna_sequences
 )
-kable(dna_data, escape = FALSE)  # escape = FALSE allows rendering of HTML
+dna_data \%>\%
+  kable('html', escape = FALSE) \%>\%
+  kable_styling('striped', full_width = FALSE)
+
 
 # Example 2: Peptide sequences
 peptide_sequences <- c("MKTAY", "LLGTP", "IVAGL")
-colored_peptide_sequences <- sapply(peptide_sequences, color_dna_sequence)
+colored_peptide_sequences <- color_dna_sequence(peptide_sequences)
 
 # Creating a table with kable for peptide sequences
 peptide_data <- data.frame(
   Peptide_Sequence = peptide_sequences,
   Colored_Peptide_Sequence = colored_peptide_sequences
 )
-kable(peptide_data, escape = FALSE)  # escape = FALSE allows rendering of HTML
+peptide_data \%>\%
+  kable('html', escape = FALSE) \%>\%
+  kable_styling('striped', full_width = FALSE)
+
 }
