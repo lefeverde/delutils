@@ -92,9 +92,9 @@ find_na_rows <- function(df){
   }
 
   weird_rows <-
-    apply(df, 2, function(x){
+    lapply(df, function(x){
       which(is.na(x))
-    }) %>% unlist
+    }) %>% unlist(use.names = FALSE)
 
   weird_rows <-
     unique(weird_rows)
