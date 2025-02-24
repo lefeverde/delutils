@@ -13,7 +13,7 @@ Encoding: UTF-8
 LazyData: true
 Suggests:
     testthat
-RoxygenNote: 7.2.2
+RoxygenNote: 7.3.2
 Imports:
     DESeq2,
     Biobase,

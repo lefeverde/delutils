@@ -118,7 +118,6 @@ select_genes_by_variance <- function(expr_mat, n_genes=5000){
 #' @export
 #'
 #' @import stats
-#' @import utils
 #' @importFrom Biobase rowMax rowMedians
 #'
 #' @examples
