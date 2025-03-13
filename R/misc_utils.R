@@ -118,9 +118,9 @@ find_inf_rows <- function(df){
   }
 
   inf_rows <-
-    apply(df, 2, function(col){
+    lapply(df, function(col){
       which(is.infinite(col))
-    }) %>% unlist()
+    }) %>% unlist(use.names = FALSE)
 
   inf_rows <- unique(inf_rows)
   return(inf_rows)
