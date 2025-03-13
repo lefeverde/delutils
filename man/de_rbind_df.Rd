@@ -11,6 +11,9 @@ de_rbind_df(df, col_to_split = 1)
 
 \item{col_to_split}{columnt to split data.frame by}
 }
+\value{
+
+}
 \description{
 de_rbind_df
 }
