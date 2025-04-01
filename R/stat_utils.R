@@ -117,7 +117,7 @@ select_genes_by_variance <- function(expr_mat, n_genes=5000){
 #' @return filtered by quantile expresion matrix
 #' @export
 #'
-#' @import stats
+#' @importFrom stats quantile
 #' @importFrom Biobase rowMax rowMedians
 #'
 #' @examples

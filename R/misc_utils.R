@@ -69,6 +69,7 @@ clean_colnames <- function(dat) {
     str_trim(side = "both") %>%
     gsub("\\s+", "_", .) %>%
     tolower()
+  fixed_names <- gsub("-", "_", colnames(fixed_names))
 
   colnames(dat) <-fixed_names
   return(dat)
