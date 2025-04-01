@@ -9,6 +9,9 @@ color_dna_sequence(sequences)
 \arguments{
 \item{sequences}{vector of DNA or peptide sequences}
 }
+\value{
+
+}
 \description{
 Colors a vector of DNA/peptide sequences via html
 }

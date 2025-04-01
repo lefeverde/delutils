@@ -62,7 +62,6 @@ clean_colnames <- function(dat) {
   if(!("data.frame" %in% class(dat))){
     stop("df needs to be either a data.frame or tibble")
   }
-  
   fixed_names <- colnames(dat) %>%
     str_trim(side = "both") %>%
     gsub("\\s+", "_", .) %>%
@@ -99,6 +98,32 @@ find_na_rows <- function(df){
     unique(weird_rows)
   return(weird_rows)
 }
+
+#' Finds rows in a data.frame which contain Inf values
+#'
+#' @param df data.frame or tibble
+#'
+#' @return A vector of unique row indices containing Inf values
+#' @export
+#'
+#' @examples
+#' # Example usage:
+#' dat <- data.frame(A = c(Inf, 2:4), B = c(1:3, Inf), C = 1:4)
+#' find_inf_rows(dat)
+find_inf_rows <- function(df){
+  if(!("data.frame" %in% class(df))){
+    stop("df needs to be either a data.frame or tibble")
+  }
+
+  inf_rows <-
+    lapply(df, function(col){
+      which(is.infinite(col))
+    }) %>% unlist(use.names = FALSE)
+
+  inf_rows <- unique(inf_rows)
+  return(inf_rows)
+}
+
 
 #' Uniquefy by variance
 #'
