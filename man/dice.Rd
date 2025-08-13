@@ -9,9 +9,6 @@ dice(x, y, check_sets = TRUE)
 \arguments{
 \item{check_sets}{}
 }
-\value{
-
-}
 \description{
 Calculates the Dice coefficient
 }

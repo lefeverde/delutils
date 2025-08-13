@@ -226,14 +226,24 @@ uniquefy_by_abs_max <- function(dat, group_col=NULL, val_col=NULL){
 #' @keywords internal
 #'
 #' @examples
-uniquefy_base <- function(dat, group_col, val_col){
-
-  ordered_dat <- dat[order(dat[group_col], -dat[val_col]),]
-  ordered_dat <- ordered_dat[!duplicated(ordered_dat[group_col]),]
+uniquefy_base <- function(dat, group_col, val_col) {
+  
+  # Extract as vectors, not data.frames
+  group_vals <- dat[[group_col]]
+  val_vals   <- dat[[val_col]]
+  
+  # Ensure numeric for descending sort if possible
+  if (!is.numeric(val_vals)) {
+    val_vals <- suppressWarnings(as.numeric(val_vals))
+  }
+  
+  ordered_dat <- dat[order(group_vals, -val_vals), , drop = FALSE]
+  ordered_dat <- ordered_dat[!duplicated(ordered_dat[[group_col]]), , drop = FALSE]
   logical_idxs <- row.names(dat) %in% row.names(ordered_dat)
-
-  return(logical_idxs)
+  
+  logical_idxs
 }
+
 
 #' rbinds a named list of data.frames
 #'

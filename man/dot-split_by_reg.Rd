@@ -9,9 +9,6 @@
 \arguments{
 \item{lfc_list}{DEG vector of FCs}
 }
-\value{
-
-}
 \description{
 Split a named vector of DEGs by fold change
 }

@@ -1,7 +1,7 @@
 Package: delutils
 Type: Package
 Title: Robust R functions for common data wrangling tasks
-Version: 0.7.0
+Version: 0.8.0
 Authors@R: c(person("Daniel", "Lefever", role = c("aut", "cre", "ths"),
     email = "lefeverde@gmail.com"))
 Description: This package contains my personal R functions which are made to help common data wrangling tasks. These are made with particular emphasis:
