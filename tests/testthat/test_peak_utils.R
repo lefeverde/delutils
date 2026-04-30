@@ -4,7 +4,7 @@ test_that("merge_peaks() merges overlaps and respects max_gap", {
   skip_if_not_installed("GenomicRanges")
   skip_if_not_installed("IRanges")
   skip_on_cran()
-  
+
   df <- data.frame(
     peak_id = c("p1","p2","p3","p4"),
     chrom   = c("chr1","chr1","chr1","chr2"),
@@ -12,11 +12,11 @@ test_that("merge_peaks() merges overlaps and respects max_gap", {
     end     = c(150,   160,   180,   60),
     stringsAsFactors = FALSE
   )
-  
+
   # max_gap = 0 -> only overlaps are merged: (p1+p2), p3, p4
   out0 <- merge_peaks(df, max_gap = 0)
   expect_true(all(c("peak_id", "merged_peak") %in% names(out0)))
-  
+
   exp0 <- data.frame(
     peak_id     = c("p1","p2","p3","p4"),
     merged_peak = c("chr1:100-160", "chr1:100-160", "chr1:171-180", "chr2:50-60"),
@@ -25,17 +25,17 @@ test_that("merge_peaks() merges overlaps and respects max_gap", {
   out0 <- out0[order(out0$peak_id), , drop = FALSE]
   exp0 <- exp0[order(exp0$peak_id), , drop = FALSE]
   expect_identical(out0, exp0)
-  
+
   # Gap between (p1+p2) end=160 and p3 start=171 is 10 bp.
   # max_gap = 9 -> do NOT merge p3; max_gap = 10 -> DO merge all chr1 peaks.
   out9  <- merge_peaks(df, max_gap = 9)
   out10 <- merge_peaks(df, max_gap = 10)
-  
+
   exp9 <- exp0 # same as max_gap = 0 case
   out9 <- out9[order(out9$peak_id), , drop = FALSE]
   exp9 <- exp9[order(exp9$peak_id), , drop = FALSE]
   expect_identical(out9, exp9)
-  
+
   exp10 <- data.frame(
     peak_id     = c("p1","p2","p3","p4"),
     merged_peak = c("chr1:100-180", "chr1:100-180", "chr1:100-180", "chr2:50-60"),
@@ -50,11 +50,11 @@ test_that("merge_peaks() validates input columns", {
   skip_if_not_installed("GenomicRanges")
   skip_if_not_installed("IRanges")
   skip_on_cran()
-  
+
   # Missing required columns
   bad <- data.frame(chrom = "chr1", start = 1, end = 10)
   expect_error(merge_peaks(bad), "all\\(required_cols %in%")
-  
+
 
 })
 
@@ -62,7 +62,7 @@ test_that("merge_peaks() keeps chromosomes separate", {
   skip_if_not_installed("GenomicRanges")
   skip_if_not_installed("IRanges")
   skip_on_cran()
-  
+
   df <- data.frame(
     peak_id = c("a1","a2","b1","b2"),
     chrom   = c("chr1","chr1","chr2","chr2"),
@@ -70,7 +70,7 @@ test_that("merge_peaks() keeps chromosomes separate", {
     end     = c(12,  20,  101,  110),
     stringsAsFactors = FALSE
   )
-  
+
   out <- merge_peaks(df, max_gap = 100)
   # Expect two merged peaks, one per chromosome
   merged_ids <- unique(out$merged_peak)
@@ -82,24 +82,24 @@ test_that("merge_peaks() keeps chromosomes separate", {
 test_that("merge_peaks_by_gene() merges per gene+chrom and maps back", {
   skip_if_not_installed("dplyr")
   skip_on_cran()
-  
+
   peaks <- data.frame(
-    peak    = paste0("p", 1:6),
+    peak_id    = paste0("p", 1:6),
     gene_id = c("g1","g1","g1","g2","g2","g2"),
     chrom   = c("chr1","chr1","chr2","chr2","chr2","chr3"),
     start   = c(100, 220,  50,  120, 180, 10),
     end     = c(150, 260,  90,  160, 210, 40),
     stringsAsFactors = FALSE
   )
-  
+
   out <- merge_peaks_by_gene(peaks)
-  
+
   # Required columns present
   expect_setequal(
     names(out),
-    c("peak","merged_peak","gene_id","chrom","start","end","merged_start","merged_end")
+    c("peak_id","merged_peak","gene_id","chrom","start","end","merged_start","merged_end")
   )
-  
+
   # Coarse gene+chrom spans are correct
   # g1 chr1 span: [100, 260]; g1 chr2 span: [50, 90]
   # g2 chr2 span: [120, 210]; g2 chr3 span: [10, 40]
@@ -113,20 +113,20 @@ test_that("merge_peaks_by_gene() merges per gene+chrom and maps back", {
   ref2 <- ref[order(ref$peak), , drop = FALSE]
   # Compare the mapped columns only
   expect_identical(
-    as.data.frame(out2[, c("peak","gene_id","chrom","start","end","merged_start","merged_end","merged_peak")]),
-    as.data.frame(ref2[, c("peak","gene_id","chrom","start","end","merged_start","merged_end","merged_peak")])
+    as.data.frame(out2[, c("peak_id","gene_id","chrom","start","end","merged_start","merged_end","merged_peak")]),
+    as.data.frame(ref2[, c("peak_id","gene_id","chrom","start","end","merged_start","merged_end","merged_peak")])
   )
 })
 
 test_that("merge_peaks_by_gene() validates input and supports single-peak genes", {
   skip_if_not_installed("dplyr")
   skip_on_cran()
-  
+
   bad <- data.frame(gene_id = "g1", chrom = "chr1", start = 1, end = 10)
   expect_error(merge_peaks_by_gene(bad), "Input must contain columns")
-  
+
   one <- data.frame(
-    peak = "p1", gene_id = "gA", chrom = "chr5", start = 1000, end = 2000,
+    peak_id = "p1", gene_id = "gA", chrom = "chr5", start = 1000, end = 2000,
     stringsAsFactors = FALSE
   )
   out <- merge_peaks_by_gene(one)
