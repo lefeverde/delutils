@@ -42,33 +42,33 @@ merge_peaks <- function(df, max_gap = 0) {
   # Input check
   required_cols <- c("peak_id", "chrom", "start", "end")
   stopifnot(all(required_cols %in% colnames(df)))
-  
+
   # Use GenomicRanges without loading the package
   gr <- GenomicRanges::GRanges(
     seqnames = df$chrom,
     ranges = IRanges::IRanges(start = df$start, end = df$end),
     peak_id = df$peak_id
   )
-  
+
   # Merge overlapping or nearby intervals
   reduced <- GenomicRanges::reduce(gr, min.gapwidth = max_gap + 1)
-  
+
   # Create new merged peak identifiers
   reduced$merged_peak <- paste0(
     GenomicRanges::seqnames(reduced), ":",
     IRanges::start(reduced), "-",
     IRanges::end(reduced)
   )
-  
+
   # Map original peaks to merged ones
   overlaps <- GenomicRanges::findOverlaps(gr, reduced)
-  
+
   out_df <- data.frame(
     peak_id = gr$peak_id[S4Vectors::queryHits(overlaps)],
     merged_peak = reduced$merged_peak[S4Vectors::subjectHits(overlaps)],
     stringsAsFactors = FALSE
   )
-  
+
   return(out_df)
 }
 
@@ -81,7 +81,7 @@ merge_peaks <- function(df, max_gap = 0) {
 #' a simple ID `merged_peak = "chrom_start_end"`.
 #'
 #' @param peaks_df A data frame/tibble with columns:
-#'   - `peak` (character): original peak ID.
+#'   - `peak_id` (character): original peak ID.
 #'   - `chrom` (character): chromosome/contig name.
 #'   - `start` (integer/numeric): 1-based start position.
 #'   - `end` (integer/numeric): 1-based end position (≥ start).
@@ -89,7 +89,7 @@ merge_peaks <- function(df, max_gap = 0) {
 #'
 #' @return
 #' A tibble/data frame with one row per original peak containing:
-#' `peak, merged_peak, gene_id, chrom, start, end, merged_start, merged_end`.
+#' `peak_id, merged_peak, gene_id, chrom, start, end, merged_start, merged_end`.
 #'
 #' @details
 #' This is a coarse gene-level merge (min start / max end). If you need
@@ -98,7 +98,7 @@ merge_peaks <- function(df, max_gap = 0) {
 #' @examples
 #' library(dplyr)
 #' peaks <- tibble::tibble(
-#'   peak    = paste0("p", 1:5),
+#'   peak_id    = paste0("p", 1:5),
 #'   gene_id = c("g1","g1","g2","g2","g2"),
 #'   chrom   = c("chr1","chr1","chr2","chr2","chr2"),
 #'   start   = c(100, 220, 50, 120, 180),
@@ -109,11 +109,11 @@ merge_peaks <- function(df, max_gap = 0) {
 #' @importFrom dplyr group_by summarise mutate left_join select
 #' @export
 merge_peaks_by_gene <- function(peaks_df) {
-  required_cols <- c("peak", "chrom", "start", "end", "gene_id")
+  required_cols <- c("peak_id", "chrom", "start", "end", "gene_id")
   if (!all(required_cols %in% names(peaks_df))) {
     stop("Input must contain columns: ", paste(required_cols, collapse = ", "))
   }
-  
+
   # Merge all peaks per gene_id + chrom
   merged_peaks <- peaks_df %>%
     dplyr::group_by(gene_id, chrom) %>%
@@ -123,10 +123,10 @@ merge_peaks_by_gene <- function(peaks_df) {
       .groups = "drop"
     ) %>%
     dplyr::mutate(merged_peak = paste0(chrom, "_", merged_start, "_", merged_end))
-  
+
   # Join back to original to map old → new peak IDs
   peaks_df %>%
     dplyr::left_join(merged_peaks, by = c("gene_id", "chrom")) %>%
-    dplyr::select(peak, merged_peak, gene_id, chrom, start, end, merged_start, merged_end)
+    dplyr::select(peak_id, merged_peak, gene_id, chrom, start, end, merged_start, merged_end)
 }
 
