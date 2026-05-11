@@ -6,9 +6,6 @@
 \usage{
 dice(x, y, check_sets = TRUE)
 }
-\arguments{
-\item{check_sets}{}
-}
 \description{
 Calculates the Dice coefficient
 }

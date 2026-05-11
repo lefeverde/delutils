@@ -553,7 +553,8 @@ dice <- function(x, y, check_sets=TRUE){
 #' ordered_dna <- order_by_similarity(dna_strings)
 #' print(ordered_dna)
 #'
-#' @importFrom Biostrings DNAStringSet stringDist
+#' @importFrom Biostrings DNAStringSet
+#' @importFrom pwalign stringDist
 #' @export
 order_by_similarity <- function(dna_strings) {
   dna_set <- DNAStringSet(dna_strings)

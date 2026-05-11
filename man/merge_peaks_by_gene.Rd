@@ -8,7 +8,7 @@ merge_peaks_by_gene(peaks_df)
 }
 \arguments{
 \item{peaks_df}{A data frame/tibble with columns:
-- `peak` (character): original peak ID.
+- `peak_id` (character): original peak ID.
 - `chrom` (character): chromosome/contig name.
 - `start` (integer/numeric): 1-based start position.
 - `end` (integer/numeric): 1-based end position (≥ start).
@@ -16,7 +16,7 @@ merge_peaks_by_gene(peaks_df)
 }
 \value{
 A tibble/data frame with one row per original peak containing:
-`peak, merged_peak, gene_id, chrom, start, end, merged_start, merged_end`.
+`peak_id, merged_peak, gene_id, chrom, start, end, merged_start, merged_end`.
 }
 \description{
 For each `gene_id` and chromosome, merges all peaks by taking the min start
@@ -30,7 +30,7 @@ gap-aware merging, use `merge_peaks()` first within each gene.
 \examples{
 library(dplyr)
 peaks <- tibble::tibble(
-  peak    = paste0("p", 1:5),
+  peak_id    = paste0("p", 1:5),
   gene_id = c("g1","g1","g2","g2","g2"),
   chrom   = c("chr1","chr1","chr2","chr2","chr2"),
   start   = c(100, 220, 50, 120, 180),

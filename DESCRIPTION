@@ -1,7 +1,7 @@
 Package: delutils
 Type: Package
 Title: Robust R functions for common data wrangling tasks
-Version: 0.8.0
+Version: 0.9.0
 Authors@R: c(person("Daniel", "Lefever", role = c("aut", "cre", "ths"),
     email = "lefeverde@gmail.com"))
 Description: This package contains my personal R functions which are made to help common data wrangling tasks. These are made with particular emphasis:
@@ -13,7 +13,6 @@ Encoding: UTF-8
 LazyData: true
 Suggests:
     testthat
-RoxygenNote: 7.3.2
 Imports:
     DESeq2,
     Biobase,
@@ -34,7 +33,13 @@ Imports:
     officer,
     grDevices,
     crayon,
-    Biostrings
+    Biostrings,
+    GenomicRanges,
+    IRanges,
+    S4Vectors,
+    pwalign,
+    kableExtra
 Depends:
     tibble,
     dplyr
+Config/roxygen2/version: 8.0.0
