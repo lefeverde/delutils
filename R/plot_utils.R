@@ -339,3 +339,57 @@ increase_xy_lims <- function(plt, prop=.25){
   return(lims)
 }
 
+#' Square ggplot panel with matched x/y limits
+#'
+#' Adds a layer that forces the plot panel to be square and the x/y axes to
+#' share identical limits, derived from the union of the mapped x and y data.
+#' Respects existing x/y scale transformations (e.g. `scale_x_log10`).
+#'
+#' @param expand Numeric. Fractional padding added to the limits in the
+#'   transformed scale space. Default `0.05`.
+#'
+#' @return A `square_xy` object to be added to a ggplot via `+`.
+#'
+#' @details
+#' Internally uses `ggplot2::ggplot_build()` to extract post-transform data,
+#' computes shared limits, inverts them back to data space, then reapplies
+#' the original transform. Square panel is enforced via
+#' `theme(aspect.ratio = 1)`.
+#'
+#' Place after any `scale_x_*` / `scale_y_*` calls.
+#'
+#' @examples
+#' library(ggplot2)
+#' d <- data.frame(x = 1:100, y = (1:100) * runif(100, 0.5, 2))
+#' ggplot(d, aes(x, y)) + geom_point() + square_xy()
+#' ggplot(d, aes(x, y)) + geom_point() +
+#'   scale_x_log10() + scale_y_log10() + square_xy()
+#'
+#' @export
+square_xy <- function(expand = 0.05) {
+  structure(list(expand = expand), class = "square_xy")
+}
+
+#' @export
+#' @importFrom ggplot2 ggplot_add ggplot_build scale_x_continuous
+#'   scale_y_continuous theme
+#' @importFrom scales identity_trans
+ggplot_add.square_xy <- function(object, plot, object_name) {
+  d <- ggplot2::ggplot_build(plot)$data[[1]]
+  vals <- c(d$x, d$y)
+  vals <- vals[is.finite(vals)]
+  lims <- range(vals) + c(-1, 1) * diff(range(vals)) * object$expand
+
+  sx <- plot$scales$get_scales("x")
+  sy <- plot$scales$get_scales("y")
+  trans_x <- if (!is.null(sx)) sx$trans else scales::identity_trans()
+  trans_y <- if (!is.null(sy)) sy$trans else scales::identity_trans()
+
+  lims_x <- trans_x$inverse(lims)
+  lims_y <- trans_y$inverse(lims)
+
+  plot +
+    ggplot2::scale_x_continuous(limits = lims_x, trans = trans_x) +
+    ggplot2::scale_y_continuous(limits = lims_y, trans = trans_y) +
+    ggplot2::theme(aspect.ratio = 1)
+}
